@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Alumnos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+        }
+        .alumnos-grid {
+            display: grid;
+            gap: 15px;
+        }
+        .alumno-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alumno-info h3 {
+            color: #2575fc;
+            margin-bottom: 5px;
+        }
+        .alumno-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .logout-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2575fc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Lista de Alumnos</h1>
+            <p>Bienvenido, Maestro {{ nombre }}. Aquí están tus alumnos registrados.</p>
+            <a href="{{ url_for('maestro') }}" class="logout-link">← Volver al panel</a>
+        </div>
+
+        {% if alumnos %}
+            <div class="alumnos-grid">
+                {% for alumno in alumnos %}
+                <div class="alumno-card">
+                    <div class="alumno-info">
+                        <h3>{{ alumno.nombre }}</h3>
+                        <p>{{ alumno.email }}</p>
+                    </div>
+                    <!-- Aquí podrías agregar botones: "Ver progreso", "Agendar", etc. -->
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alumno-card" style="text-align: center; color: #888;">
+                <p>No hay alumnos registrados aún.</p>
+            </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('logout') }}" class="logout-link">Cerrar sesión</a>
+        </div>
+    </div>
+</body>
+</html>

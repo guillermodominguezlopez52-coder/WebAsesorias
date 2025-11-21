@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administrador</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .btn:hover {
+            background: #1a68e8;
+        }
+        .btn-danger {
+            background: #e74c3c;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #d4af37;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .logout-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #e74c3c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Panel de Administrador</h1>
+        <p>Bienvenido, administrador. Gestiona usuarios y reportes.</p>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+    </div>
+
+    <!-- Usuarios -->
+    <div class="section">
+        <h2>👥 Usuarios Registrados</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Fecha De Registro</th>
+                    <th>Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in usuarios %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.nombre }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.rol == 'alumno' %}
+                            <span style="color: #2ecc71; font-weight: bold;">Alumno</span>
+                        {% elif user.rol == 'maestro' %}
+                            <span style="color: #e74c3c; font-weight: bold;">Maestro</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('toggle_role', user_id=user.id, target_role='alumno') }}" class="btn">Alumno</a>
+                        <a href="{{ url_for('toggle_role', user_id=user.id, target_role='maestro') }}" class="btn">Maestro</a>
+                        <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Reportes -->
+    <div class="section">
+        <h2>⚠️ Reportes Pendientes</h2>
+        {% if reportes %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reportado por</th>
+                        <th>Usuario reportado</th>
+                        <th>Razón</th>
+                        <th>Comentarios</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reportes %}
+                    <tr>
+                        <td>{{ r.reportado_por }}</td>
+                        <td>{{ r.usuario_reportado }}</td>
+                        <td>{{ r.razon }}</td>
+                        <td style="max-width: 200px; word-wrap: break-word;">{{ r.comentarios or 'Sin comentarios' }}</td>
+                        <td>{{ r.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align: center; color: #888; padding: 20px;">No hay reportes pendientes.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Crear Cuenta</h2>
+<form method="POST">
+    <input type="text" name="nombre" placeholder="Nombre completo" required>
+    <input type="email" name="email" placeholder="Correo electrónico" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+    
+    <label><input type="radio" name="rol" value="alumno" required> Alumno</label>
+    <label><input type="radio" name="rol" value="maestro" required> Maestro</label>
+    
+    <div class="terms">
+        <input type="checkbox" name="terminos" required>
+        <span>Acepto los <a href="#" onclick="alert('Términos: 1. Usa la plataforma con responsabilidad. 2. No compartas tus credenciales. 3. Respeta a otros usuarios.'); return false;">Términos y Condiciones</a></span>
+    </div>
+
+    <button type="submit">Registrarse</button>
+</form>
+<a href="{{ url_for('login') }}">¿Ya tienes cuenta? Inicia sesión</a>
+{% endblock %}

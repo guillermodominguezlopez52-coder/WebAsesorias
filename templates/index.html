@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Asesorías</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2575fc;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-links a:hover {
+            color: #2575fc;
+        }
+        .hero {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            padding: 5rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin: 0 10px;
+        }
+        .btn:hover {
+            background: #1a68e8;
+        }
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            flex: 1 1 300px;
+            max-width: 400px;
+        }
+        .feature-card h3 {
+            color: #2575fc;
+            margin-bottom: 1rem;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🎓 Web Asesorías</div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Inicio</a>
+            <a href="{{ url_for('register') }}">Registrar</a>
+            <a href="{{ url_for('login') }}">Iniciar Sesión</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Desbloquea tu Potencial Académico.</h1>
+        <p>Asesorías personalizadas para dominar cada tema.</p>
+        <a href="{{ url_for('register') }}" class="btn">Regístrate Ahora</a>
+        <a href="{{ url_for('login') }}" class="btn">Iniciar Sesión</a>
+    </div>
+
+    <!-- Sección: ¿Por Qué Elegirnos? -->
+    <div class="section">
+        <h2 class="section-title">¿Por Qué Elegir Nuestras Asesorías?</h2>
+        <div class="features">
+            <div class="feature-card">
+                <h3>Enfoque en Temas Específicos</h3>
+                <p>No cubrimos materias enteras, sino los puntos exactos donde tienes dificultades.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Aprende a Tu Ritmo</h3>
+                <p>Contenido y recursos disponibles para repasar justo antes de ese examen crucial.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Resultados Comprobados</h3>
+                <p>Deja de memorizar. Te ayudamos a entender la lógica detrás de cada concepto.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección: ¿Cómo funciona? -->
+    <div class="section">
+        <h2 class="section-title">¿Cómo funciona?</h2>
+        <ol style="max-width: 800px; margin: 0 auto; padding-left: 2rem;">
+            <li><strong>Regístrate:</strong> Crea una cuenta rápida y fácilmente.</li>
+            <li><strong>Elige tu tema:</strong> Busca el tema exacto que se te dificulte.</li>
+            <li><strong>Accede y aprende:</strong> Explora videotutoriales, ejercicios interactivos y guías paso a paso.</li>
+            <li><strong>Domina el tema:</strong> Aplica lo aprendido y mejora tus notas.</li>
+        </ol>
+    </div>
+
+    <!-- Sección: Nuestra Promesa -->
+    <div class="section">
+        <h2 class="section-title">Nuestra Promesa</h2>
+        <div class="features">
+            <div class="feature-card">
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">✅ Profesores certificados</li>
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">✅ Horarios flexibles</li>
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">✅ Asesorías personalizadas</li>
+                    <li style="display: flex; align-items: center; gap: 10px;">✅ Comienza ahora</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 Web Asesorías. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html>

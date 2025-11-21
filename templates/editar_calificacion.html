@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Calificación</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background: #2575fc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #1a68e8;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #2575fc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .logout-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #e74c3c;
+            text-decoration: none;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Editar Calificación</h1>
+        <p>Alumno: <strong>{{ alumno.nombre }}</strong></p>
+        <p>Tema: <strong>{{ tema.nombre }}</strong></p>
+
+        <form method="POST">
+            <label for="nota">Nota (0-100):</label>
+            <input type="number" name="nota" id="nota" step="0.01" min="0" max="100" required>
+
+            <button type="submit">Guardar Calificación</button>
+        </form>
+
+        <a href="{{ url_for('maestro_calificaciones') }}" class="back-link">← Volver a Calificaciones</a>
+        <a href="{{ url_for('logout') }}" class="logout-link">Cerrar sesión</a>
+    </div>
+</body>
+</html>

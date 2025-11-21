@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://via.placeholder.com/1920x1080') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: #333;
+        }
+        .login-container h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .login-container p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .role-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 1rem;
+        }
+        .role-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .role-tab.active {
+            background: #2575fc;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        .form-group .icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        .remember-me {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .remember-me label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-login:hover {
+            background: #1a68e8;
+        }
+        .forgot-password {
+            margin-top: 1rem;
+            color: #2575fc;
+            text-decoration: none;
+        }
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        .register-link {
+            margin-top: 2rem;
+            color: #2575fc;
+            text-decoration: none;
+        }
+        .register-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <p>Create an account</p>
+
+        <!-- Tabs para rol (solo Alumno y Asesor) -->
+        <div class="role-tabs">
+            <div class="role-tab active" onclick="selectRole('alumno')">Alumno</div>
+            <div class="role-tab" onclick="selectRole('asesor')">Asesor</div>
+            <!-- ⚠️ Eliminamos "Administrador" -->
+        </div>
+
+        <!-- Formulario -->
+        <form method="POST">
+            <div class="form-group">
+                <span class="icon">👤</span>
+                <input type="text" name="email" placeholder="profe_luis" required>
+            </div>
+            <div class="form-group">
+                <span class="icon">🔒</span>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <div class="remember-me">
+                <label><input type="checkbox"> Remember me</label>
+                <a href="#" class="forgot-password">Need help?</a>
+            </div>
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <!-- Enlace a registro -->
+        <p style="margin-top: 2rem;">
+             <a href="{{ url_for('index') }}" class="back-link">← Volver a Inicio</a>
+        </p>
+    </div>
+
+    <script>
+        function selectRole(role) {
+            const tabs = document.querySelectorAll('.role-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            // Aquí podrías cambiar el formulario según el rol (opcional)
+        }
+    </script>
+</body>
+</html>

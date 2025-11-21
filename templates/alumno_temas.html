@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Temas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .section h2 {
+            color: #2575fc;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2575fc;
+            padding-bottom: 5px;
+        }
+        .tema-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tema-info {
+            flex: 1;
+        }
+        .tema-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .tema-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .btn {
+            padding: 8px 15px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a68e8;
+        }
+        .btn-aceptado {
+            background: #d4edda;
+            color: #155724;
+            cursor: default;
+        }
+        .btn-aceptado:hover {
+            background: #d4edda;
+        }
+        .back-link {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #6e45e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            background: #5a3bb0;
+        }
+        .logout-link {
+            display: block;
+            margin-top: 25px;
+            color: #e74c3c;
+            text-decoration: none;
+            text-align: center;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Temas Disponibles</h1>
+            <p>Bienvenido, Alumno {{ nombre }}. Elige los temas que deseas tomar.</p>
+            <a href="{{ url_for('alumno') }}" class="back-link">← Volver al panel</a>
+        </div>
+
+        <!-- Temas Disponibles -->
+        <div class="section">
+            <h2>Temas Disponibles</h2>
+            {% if temas_disponibles %}
+                {% for t in temas_disponibles %}
+                <div class="tema-card">
+                    <div class="tema-info">
+                        <h3>{{ t.nombre }}</h3>
+                        <p><strong>Maestro:</strong> {{ t.maestro_nombre }}</p>
+                        <p><strong>Hora:</strong> {{ t.hora }} | <strong>Aula:</strong> {{ t.aula }}</p>
+                        <p>{{ t.descripcion or "Sin descripción" }}</p>
+                    </div>
+                    <form method="POST" action="{{ url_for('aceptar_tema', tema_id=t.id) }}" style="display: inline;">
+                        <button type="submit" class="btn">Aceptar</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #888;">No hay temas disponibles en este momento.</p>
+            {% endif %}
+        </div>
+
+        <!-- Temas Aceptados -->
+        <div class="section">
+            <h2>Mis Temas Aceptados</h2>
+            {% if temas_aceptados %}
+                {% for t in temas_aceptados %}
+                <div class="tema-card">
+                    <div class="tema-info">
+                        <h3>{{ t.nombre }}</h3>
+                        <p><strong>Maestro:</strong> {{ t.maestro_nombre }}</p>
+                        <p><strong>Hora:</strong> {{ t.hora }} | <strong>Aula:</strong> {{ t.aula }}</p>
+                        <p>{{ t.descripcion or "Sin descripción" }}</p>
+                    </div>
+                    <span class="btn btn-aceptado">Aceptado</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #888;">Aún no has aceptado ningún tema.</p>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Cerrar sesión</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calificaciones</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #d4af37;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #2575fc;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1a68e8;
+        }
+        .back-link {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #6e45e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            background: #5a3bb0;
+        }
+        .logout-link {
+            display: block;
+            margin-top: 25px;
+            color: #e74c3c;
+            text-decoration: none;
+            text-align: center;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Calificaciones</h1>
+            <p>Bienvenido, Maestro {{ nombre }}. Gestiona las calificaciones de tus alumnos.</p>
+            <a href="{{ url_for('maestro') }}" class="back-link">← Volver al panel</a>
+        </div>
+
+        {% if calificaciones %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Tema</th>
+                        <th>Nota</th>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in calificaciones %}
+                    <tr>
+                        <td>{{ c.alumno_nombre }}</td>
+                        <td>{{ c.tema_nombre }}</td>
+                        <td>{{ c.nota }}</td>
+                        <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else 'N/A' }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_calificacion', alumno_id=c.alumno_id, tema_id=c.tema_id) }}" class="btn">Editar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="background: white; padding: 30px; border-radius: 12px; text-align: center; color: #888; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+                <p>No hay calificaciones registradas aún.</p>
+                <p>Asegúrate de tener:</p>
+                <ul style="margin-top: 10px; text-align: left; display: inline-block;">
+                    <li>Alumnos registrados</li>
+                    <li>Temas creados</li>
+                    <li>Calificaciones asignadas</li>
+                </ul>
+            </div>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="logout-link">Cerrar sesión</a>
+    </div>
+</body>
+</html>
