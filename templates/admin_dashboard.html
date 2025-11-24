@@ -112,13 +112,20 @@
                         {% elif user.rol == 'maestro' %}
                             <span style="color: #e74c3c; font-weight: bold;">Maestro</span>
                         {% endif %}
-                    </td>
-                    <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                     <td>
-                        <a href="{{ url_for('toggle_role', user_id=user.id, target_role='alumno') }}" class="btn">Alumno</a>
-                        <a href="{{ url_for('toggle_role', user_id=user.id, target_role='maestro') }}" class="btn">Maestro</a>
-                        <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Eliminar</a>
-                    </td>
+                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='alumno') }}" class="btn">Alumno</a>
+                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='maestro') }}" class="btn">Maestro</a>
+                    <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Eliminar</a>
+                     <!-- Formulario de sanción -->
+                     <form method="POST" action="{{ url_for('sancionar_usuario', user_id=user.id) }}" style="display:inline; margin-left: 8px;">
+                     <input type="text" name="motivo" placeholder="Motivo" required 
+                        style="width:120px; padding:3px; font-size:0.8rem;">
+                 <button type="submit" 
+                style="padding:3px 8px; font-size:0.8rem; background:#e74c3c; color:white; border:none; border-radius:4px;">
+            Sancionar
+        </button>
+    </form>
+</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -66,6 +66,16 @@ def register():
                     'INSERT INTO usuarios (nombre, email, password, rol) VALUES (%s, %s, %s, %s)',
                     (nombre, email, hashed, rol)
                 )
+                user_id = cur.lastrowid  # ← Obtén el ID del nuevo usuario
+
+                # Enviar notificación de bienvenida
+                rol_texto = "Alumno" if rol == 'alumno' else "Profesor"
+                enviar_notificacion(
+                    usuario_id=user_id,
+                    titulo="¡Bienvenido a Web Asesorías!",
+                    mensaje=f"¡Hola {nombre}! Tu cuenta como {rol_texto} ha sido creada exitosamente. ¡Comienza a explorar!"
+                )
+
         finally:
             conn.close()
 
@@ -109,7 +119,37 @@ def alumno():
     if 'user_id' not in session or session['rol'] != 'alumno':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('login'))
-    return render_template('alumno.html', nombre=session['nombre'])
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Temas inscritos
+            cur.execute("SELECT COUNT(*) FROM alumno_tema WHERE alumno_id = %s", (session['user_id'],))
+            temas_inscritos = cur.fetchone()['COUNT(*)']
+
+            # Calificaciones registradas
+            cur.execute("SELECT COUNT(*) FROM calificaciones WHERE alumno_id = %s", (session['user_id'],))
+            calificaciones = cur.fetchone()['COUNT(*)']
+
+            # Temas pendientes (sin calificación)
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM alumno_tema at
+                JOIN temas t ON at.tema_id = t.id
+                LEFT JOIN calificaciones c ON c.alumno_id = at.alumno_id AND c.tema_id = t.id
+                WHERE at.alumno_id = %s AND c.nota IS NULL
+            """, (session['user_id'],))
+            pendientes = cur.fetchone()['COUNT(*)']
+
+            stats = {
+                'temas_inscritos': temas_inscritos,
+                'calificaciones': calificaciones,
+                'pendientes': pendientes
+            }
+    finally:
+        conn.close()
+
+    return render_template('alumno.html', nombre=session['nombre'], stats=stats)
 
 # Panel del maestro
 @app.route('/maestro')
@@ -117,7 +157,29 @@ def maestro():
     if 'user_id' not in session or session['rol'] != 'maestro':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('login'))
-    return render_template('maestro.html', nombre=session['nombre'])
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Estadísticas
+            cur.execute("SELECT COUNT(DISTINCT alumno_id) FROM alumno_tema at JOIN temas t ON at.tema_id = t.id WHERE t.maestro_id = %s", (session['user_id'],))
+            alumnos = cur.fetchone()['COUNT(DISTINCT alumno_id)']
+
+            cur.execute("SELECT COUNT(*) FROM temas WHERE maestro_id = %s", (session['user_id'],))
+            temas = cur.fetchone()['COUNT(*)']
+
+            cur.execute("SELECT COUNT(*) FROM notificaciones WHERE usuario_id = %s AND leida = FALSE", (session['user_id'],))
+            notificaciones_pendientes = cur.fetchone()['COUNT(*)']
+
+            stats = {
+                'alumnos': alumnos,
+                'temas': temas,
+                'notificaciones_pendientes': notificaciones_pendientes
+            }
+    finally:
+        conn.close()
+
+    return render_template('maestro.html', nombre=session['nombre'], stats=stats)
 
 # Lista de alumnos del maestro
 @app.route('/maestro/alumnos')
@@ -143,10 +205,9 @@ def maestro_alumnos():
 
     return render_template('maestro_alumnos.html', nombre=session['nombre'], alumnos=alumnos)
 
-# Notificaciones del maestro
-@app.route('/maestro/notificaciones')
-def maestro_notificaciones():
-    if 'user_id' not in session or session['rol'] != 'maestro':
+@app.route('/alumno/notificaciones')
+def alumno_notificaciones():
+    if 'user_id' not in session or session['rol'] != 'alumno':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('login'))
 
@@ -155,7 +216,28 @@ def maestro_notificaciones():
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT * FROM notificaciones 
-                WHERE maestro_id = %s 
+                WHERE usuario_id = %s
+                ORDER BY created_at DESC
+            """, (session['user_id'],))
+            notificaciones = cur.fetchall()
+    finally:
+        conn.close()
+
+    return render_template('alumno_notificaciones.html', nombre=session['nombre'], notificaciones=notificaciones)
+
+# Notificaciones del maestro
+@app.route('/maestro/notificaciones')
+def maestro_notificaciones():
+    if 'user_id' not in session:
+        flash('Acceso no autorizado.', 'error')
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT * FROM notificaciones 
+                WHERE usuario_id = %s  -- ← Cambiado aquí
                 ORDER BY created_at DESC
             """, (session['user_id'],))
             notificaciones = cur.fetchall()
@@ -253,6 +335,49 @@ def editar_calificacion(alumno_id, tema_id):
                            tema=tema, 
                            alumno_id=alumno_id, 
                            tema_id=tema_id)
+
+# NUEVA RUTA: Calificaciones por tema
+@app.route('/maestro/tema/<int:tema_id>/calificaciones')
+def tema_calificaciones(tema_id):
+    if 'user_id' not in session or session['rol'] != 'maestro':
+        flash('Acceso no autorizado.', 'error')
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM temas WHERE id = %s", (tema_id,))
+            tema = cur.fetchone()
+            if not tema:
+                flash('Tema no encontrado.', 'error')
+                return redirect(url_for('maestro_temas'))
+
+            if tema['maestro_id'] != session['user_id']:
+                flash('No tienes permiso para ver este tema.', 'error')
+                return redirect(url_for('maestro_temas'))
+
+            cur.execute("""
+                SELECT 
+                    u.id AS alumno_id,
+                    u.nombre AS alumno_nombre,
+                    u.email AS alumno_email,
+                    c.nota AS nota_actual,
+                    c.fecha AS fecha_nota
+                FROM alumno_tema at
+                JOIN usuarios u ON at.alumno_id = u.id
+                LEFT JOIN calificaciones c ON c.alumno_id = u.id AND c.tema_id = %s
+                WHERE at.tema_id = %s
+                ORDER BY u.nombre
+            """, (tema_id, tema_id))
+            alumnos = cur.fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template('tema_calificaciones.html', 
+                         nombre=session['nombre'], 
+                         tema=tema, 
+                         alumnos=alumnos)
 
 # Crear tema
 @app.route('/maestro/temas/crear', methods=['GET', 'POST'])
@@ -510,6 +635,54 @@ def admin_logout():
     session.pop('is_admin', None)
     flash('Sesión de administrador cerrada.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/admin/sancionar/<int:user_id>', methods=['POST'])
+def sancionar_usuario(user_id):
+    if not session.get('is_admin'):
+        flash('Acceso no autorizado.', 'error')
+        return redirect(url_for('index'))
+
+    motivo = request.form.get('motivo', 'Conducta inapropiada')
+    enviar_notificacion(
+        usuario_id=user_id,
+        titulo='⚠️ Notificación de Infracción',
+        mensaje=f'Se te ha aplicado una sanción por: {motivo}. Por favor revisa nuestras políticas.'
+    )
+    flash('Notificación de infracción enviada.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/perfil')
+def perfil():
+    if 'user_id' not in session:
+        flash('Debes iniciar sesión para ver esta página.', 'error')
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT nombre, email, rol FROM usuarios WHERE id = %s", (session['user_id'],))
+            user = cur.fetchone()
+            if not user:
+                session.clear()
+                flash('Sesión inválida.', 'error')
+                return redirect(url_for('login'))
+    finally:
+        conn.close()
+
+    return render_template('perfil.html', user=user)
+
+def enviar_notificacion(usuario_id, titulo, mensaje):
+    """Envía una notificación a cualquier usuario (alumno o maestro)."""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO notificaciones (usuario_id, titulo, mensaje)
+                VALUES (%s, %s, %s)
+            """, (usuario_id, titulo, mensaje))
+        conn.commit()
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

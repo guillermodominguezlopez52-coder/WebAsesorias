@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscar Asesorías</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            font-size: 1.25rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        .clase-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #6e45e2;
+        }
+        .clase-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .clase-info p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-aceptar {
+            background: #28a745;
+            color: white;
+        }
+        .btn-aceptar:hover {
+            background: #218838;
+        }
+        .btn-inscrito {
+            background: #6c757d;
+            color: white;
+            cursor: not-allowed;
+        }
+        .no-temas {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 2rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2575fc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buscar Asesorías</h1>
+        <p class="subtitle">Explora los temas disponibles y mejora tus conocimientos.</p>
+
+        {% if disponibles %}
+            {% for tema in disponibles %}
+            <div class="clase-card">
+                <div class="clase-info">
+                    <h3>{{ tema.nombre }}</h3>
+                    <p><strong>Asesor:</strong> {{ tema.maestro_nombre }}</p>
+                    <p><strong>Hora:</strong> {{ tema.hora }} | <strong>Aula:</strong> {{ tema.aula }}</p>
+                    <p>{{ tema.descripcion or "Sin descripción" }}</p>
+                </div>
+                {% if tema.id in inscrito_ids %}
+                    <span class="btn btn-inscrito">Ya Inscrito</span>
+                {% else %}
+                    <form method="POST" action="{{ url_for('aceptar_tema', tema_id=tema.id) }}" style="margin: 0;">
+                        <button type="submit" class="btn btn-aceptar">Aceptar Tema</button>
+                    </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-temas">
+                <p>No hay asesorías disponibles en este momento.</p>
+            </div>
+        {% endif %}
+
+        <a href="{{ url_for('alumno') }}" class="back-link">← Volver a Mis Asesorías</a>
+    </div>
+</body>
+</html>

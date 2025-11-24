@@ -2,74 +2,392 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Maestro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Maestro - Web Asesorías</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6e45e2;
+            --primary-dark: #5a37c0;
+            --secondary: #88d3f9;
+            --accent: #2575fc;
+            --accent-dark: #1a68e8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #e74c3c;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-card: #ffffff;
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            --shadow-hover: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #6e45e2, #88d3f9);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-width: 500px;
+
+        /* Animated background circles */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .dashboard {
+            background: var(--bg-card);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            max-width: 1000px;
             width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        h1 {
-            font-size: 2.5rem;
-            color: #333;
-            margin-bottom: 20px;
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        p {
-            color: #666;
-            line-height: 1.6;
-            margin: 20px 0;
-            font-size: 1.1rem;
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f3f4f6;
         }
-        .btn {
+
+        .welcome-badge {
             display: inline-block;
-            margin: 10px;
-            padding: 12px 25px;
-            background: #2575fc;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
             color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .card-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: background 0.3s;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .btn:hover {
-            background: #1a68e8;
+
+        .card-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 0;
         }
-        .logout-link {
+
+        .card-link:hover::before {
+            opacity: 1;
+        }
+
+        .card-link:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 35px rgba(37, 117, 252, 0.3);
+        }
+
+        .card-link:hover .card-icon,
+        .card-link:hover .card-title,
+        .card-link:hover .card-description {
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-link:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            transition: color 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+            transition: color 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Color específico para cada tarjeta */
+        .card-alumnos:hover::before {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .card-notificaciones:hover::before {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .card-temas:hover::before {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .card-calificaciones:hover::before {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .card-perfil:hover::before {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 30px;
+            border-top: 2px solid #f3f4f6;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
             display: block;
-            margin-top: 25px;
-            color: #e74c3c;
-            text-decoration: none;
         }
-        .logout-link:hover {
-            text-decoration: underline;
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 35px 25px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                flex-direction: column-reverse;
+                gap: 25px;
+            }
+
+            .stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard {
+                padding: 25px 20px;
+            }
+
+            .card-link {
+                padding: 25px 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>¡Bienvenido, Maestro {{ nombre }}!</h1>
-        <p>Estás en tu panel de maestro.</p>
-        
-        <a href="{{ url_for('maestro_alumnos') }}" class="btn">Ver Lista de Alumnos</a>
-        <a href="{{ url_for('maestro_notificaciones') }}" class="btn">Notificaciones</a>
-        <a href="{{ url_for('maestro_temas') }}" class="btn">Temas</a>
-        <a href="{{ url_for('maestro_calificaciones') }}" class="btn">Calificaciones</a>
-        
-        <a href="{{ url_for('logout') }}" class="logout-link">Cerrar sesión</a>
+    <div class="dashboard">
+        <div class="header">
+            <div class="welcome-badge">👨‍🏫 Panel de Maestro</div>
+            <h1>¡Bienvenido, {{ nombre }}!</h1>
+            <p class="subtitle">Gestiona tus clases y alumnos desde aquí</p>
+        </div>
+
+        <div class="grid">
+            <a href="{{ url_for('maestro_alumnos') }}" class="card-link card-alumnos">
+                <div class="card-icon">👥</div>
+                <div class="card-title">Mis Alumnos</div>
+                <div class="card-description">Gestiona tu lista de estudiantes</div>
+            </a>
+
+            <a href="{{ url_for('maestro_notificaciones') }}" class="card-link card-notificaciones">
+                <div class="card-icon">🔔</div>
+                <div class="card-title">Notificaciones</div>
+                <div class="card-description">Revisa mensajes y alertas</div>
+            </a>
+
+            <a href="{{ url_for('maestro_temas') }}" class="card-link card-temas">
+                <div class="card-icon">📚</div>
+                <div class="card-title">Temas</div>
+                <div class="card-description">Administra tus materias</div>
+            </a>
+
+            <a href="{{ url_for('maestro_calificaciones') }}" class="card-link card-calificaciones">
+                <div class="card-icon">⭐</div>
+                <div class="card-title">Asignar Calificaciones</div>
+                <div class="card-description">Registra evaluaciones</div>
+            </a>
+
+            <a href="{{ url_for('perfil') }}" class="card-link card-perfil">
+                <div class="card-icon">👤</div>
+                <div class="card-title">Mi Perfil</div>
+                <div class="card-description">Actualiza tu información</div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ stats.alumnos }}</span>
+                    <span class="stat-label">Alumnos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ stats.temas }}</span>
+                    <span class="stat-label">Temas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ stats.notificaciones_pendientes }}</span>
+                    <span class="stat-label">Pendientes</span>
+                </div>
+            </div>
+
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <span>🚪</span>
+                Cerrar Sesión
+            </a>
+        </div>
     </div>
 </body>
 </html>
