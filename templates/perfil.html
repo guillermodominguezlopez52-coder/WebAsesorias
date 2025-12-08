@@ -2,203 +2,723 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Perfil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Web Asesorías</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #6e45e2, #88d3f9);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
-            color: #333;
         }
+
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 2rem auto;
+        }
+
+        /* Profile Header */
+        .profile-header {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
         }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        p.subtitle {
-            font-size: 1.25rem;
-            margin-top: -10px;
-            margin-bottom: 30px;
-            color: #666;
-        }
-        .profile-grid {
+
+        .profile-header-content {
             display: flex;
-            gap: 3rem;
+            gap: 32px;
+            align-items: center;
             flex-wrap: wrap;
         }
-        .profile-pic-container {
+
+        .profile-pic-section {
             text-align: center;
-            min-width: 150px;
         }
+
+        .profile-pic-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         .profile-pic {
-            width: 120px;
-            height: 120px;
-            background: #f0f2f5;
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto;
-            color: #6e45e2;
+            font-size: 4rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            position: relative;
         }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            background: #f9f9f9;
-            color: #555;
-        }
-        .form-row {
-            display: flex;
-            gap: 10px;
-        }
-        .form-row .form-control {
-            flex: 1;
-        }
-        .divider {
-            height: 1px;
-            background: #eee;
-            margin: 2rem 0;
-        }
-        .insignia-list {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .insignia {
-            width: 40px;
-            height: 40px;
+
+        .profile-pic-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 36px;
+            height: 36px;
+            background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 3px solid white;
+        }
+
+        .upload-btn {
+            margin-top: 16px;
+            padding: 10px 20px;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
-            background: #f0f2f5;
             transition: all 0.2s;
         }
-        .insignia.selected {
-            background: #6e45e2;
-            color: white;
+
+        .upload-btn:hover {
+            background: white;
+            border-color: var(--accent);
+            color: var(--accent);
         }
-        .insignia:hover {
-            transform: scale(1.1);
+
+        .profile-info {
+            flex: 1;
         }
-        .btn {
-            padding: 10px 20px;
-            background: #6e45e2;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: not-allowed;
-            opacity: 0.6;
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
         }
-        .logout-link {
-            display: block;
+
+        .profile-role {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #dbeafe;
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .profile-email {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 24px;
             margin-top: 20px;
+        }
+
+        .stat-item {
             text-align: center;
-            color: #e74c3c;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: #dbeafe;
+            color: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-main);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .form-control:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+        /* Badge Selection */
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .badge-item {
+            aspect-ratio: 1;
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .badge-item:hover {
+            transform: scale(1.1);
+            border-color: var(--accent);
+        }
+
+        .badge-item.selected {
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toggle-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .toggle-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        input:disabled + .slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
             text-decoration: none;
         }
-        .logout-link:hover {
-            text-decoration: underline;
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Info Messages */
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 1rem auto;
+            }
+
+            .profile-header {
+                padding: 24px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Mi Perfil</h1>
-        <p class="subtitle">Personaliza tu información y preferencias.</p>
+        <a href="{{ url_for('maestro') if user.rol == 'maestro' else url_for('alumno') }}" class="back-link">
+            <span>←</span>
+            <span>Volver al Dashboard</span>
+        </a>
 
-        <div class="profile-grid">
-            <div class="profile-pic-container">
-                <div class="profile-pic">👤</div>
-                <button class="btn" type="button" style="margin-top: 10px;">Subir Foto</button>
-                <small style="display: block; margin-top: 0.5rem; opacity: 0.7;">(Esta función requiere desarrollo adicional)</small>
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-header-content">
+                <div class="profile-pic-section">
+                    <div class="profile-pic-wrapper">
+                        <div class="profile-pic" id="profilePic">
+                            <span id="profileIcon">🎓</span>
+                        </div>
+                        <div class="profile-pic-badge" id="profileBadge">🎓</div>
+                    </div>
+                    <button class="upload-btn" type="button">
+                        📸 Cambiar Avatar
+                    </button>
+                    <small style="display: block; margin-top: 8px; color: var(--text-light); font-size: 0.85rem;">
+                        Próximamente
+                    </small>
+                </div>
+
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.nombre }}</h1>
+                    <span class="profile-role">
+                        {% if user.rol == 'alumno' %}
+                            🎓 Alumno
+                        {% else %}
+                            👨‍🏫 Maestro
+                        {% endif %}
+                    </span>
+                    <div class="profile-email">
+                        <span>📧</span>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Temas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">48</div>
+                            <div class="stat-label">Horas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="profile-form">
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Personal Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">👤</div>
+                    <h2 class="card-title">Información Personal</h2>
+                </div>
+
+                <div class="info-box">
+                    💡 Los campos están bloqueados por seguridad. Contacta soporte para cambios.
+                </div>
+
                 <div class="form-group">
-                    <label>Nombre Completo</label>
+                    <label class="form-label">Nombre Completo</label>
                     <input type="text" class="form-control" value="{{ user.nombre }}" disabled>
                 </div>
 
                 <div class="form-group">
-                    <label>Rol</label>
+                    <label class="form-label">Correo Electrónico</label>
+                    <div class="input-group">
+                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                        <button class="btn btn-secondary" disabled>
+                            ✓ Verificar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rol en la Plataforma</label>
                     <input type="text" class="form-control" 
                            value="{% if user.rol == 'alumno' %}Alumno{% else %}Maestro{% endif %}" 
                            disabled>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Email</label>
-                    <div class="form-row">
-                        <input type="text" class="form-control" value="{{ user.email }}" disabled>
-                        <button class="btn" type="button">Verificar</button>
-                    </div>
+            <!-- Preferences Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <h2 class="card-title">Preferencias</h2>
                 </div>
 
-                <div class="divider"></div>
+                <div class="warning-box">
+                    ⚠️ Estas funciones estarán disponibles próximamente.
+                </div>
 
-                <h3>Preferencias</h3>
-
-                <div class="form-group" style="display: flex; align-items: center; justify-content: space-between;">
-                    <label for="dark-mode" style="margin-bottom: 0;">Modo Oscuro</label>
+                <div class="toggle-group">
+                    <div class="toggle-label">
+                        <span class="toggle-title">Modo Oscuro</span>
+                        <span class="toggle-description">Activa el tema oscuro</span>
+                    </div>
                     <label class="switch">
-                        <input type="checkbox" id="dark-mode" disabled>
+                        <input type="checkbox" id="darkMode" disabled>
                         <span class="slider"></span>
                     </label>
                 </div>
-                <small style="display: block; margin-top: -1rem; margin-bottom: 1.5rem; opacity: 0.7;">(Función en desarrollo)</small>
 
-                <div class="form-group">
-                    <label>Elige tu Insignia</label>
-                    <div class="insignia-list">
-                        <span class="insignia selected">🎓</span>
-                        <span class="insignia">🚀</span>
-                        <span class="insignia">💡</span>
-                        <span class="insignia">🧠</span>
-                        <span class="insignia">⚡</span>
+                <div class="toggle-group">
+                    <div class="toggle-label">
+                        <span class="toggle-title">Notificaciones Email</span>
+                        <span class="toggle-description">Recibe alertas por correo</span>
                     </div>
+                    <label class="switch">
+                        <input type="checkbox" id="emailNotif" checked disabled>
+                        <span class="slider"></span>
+                    </label>
                 </div>
 
-                <button type="submit" class="btn" disabled>
-                    Guardar Cambios (Deshabilitado)
-                </button>
+                <div class="toggle-group">
+                    <div class="toggle-label">
+                        <span class="toggle-title">Modo Público</span>
+                        <span class="toggle-description">Perfil visible para todos</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="publicProfile" disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
-        
-        <a href="{{ url_for('logout') }}" class="logout-link">Cerrar Sesión</a>
+
+        <!-- Badge Selection Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🏆</div>
+                <h2 class="card-title">Elige tu Insignia</h2>
+            </div>
+
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Personaliza tu avatar seleccionando tu insignia favorita
+            </p>
+
+            <div class="badge-grid">
+                <div class="badge-item selected" data-badge="🎓">🎓</div>
+                <div class="badge-item" data-badge="🚀">🚀</div>
+                <div class="badge-item" data-badge="💡">💡</div>
+                <div class="badge-item" data-badge="🧠">🧠</div>
+                <div class="badge-item" data-badge="⚡">⚡</div>
+                <div class="badge-item" data-badge="🎯">🎯</div>
+                <div class="badge-item" data-badge="⭐">⭐</div>
+                <div class="badge-item" data-badge="🔥">🔥</div>
+                <div class="badge-item" data-badge="💎">💎</div>
+                <div class="badge-item" data-badge="🏅">🏅</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" disabled>
+                    <span>💾</span>
+                    <span>Guardar Cambios</span>
+                </button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                    <span>🚪</span>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Hacer funcionales las insignias
-        document.querySelectorAll('.insignia').forEach(insignia => {
-            insignia.addEventListener('click', () => {
-                document.querySelectorAll('.insignia').forEach(i => i.classList.remove('selected'));
-                insignia.classList.add('selected');
+        // Badge selection
+        const badges = document.querySelectorAll('.badge-item');
+        const profileIcon = document.getElementById('profileIcon');
+        const profileBadge = document.getElementById('profileBadge');
+
+        badges.forEach(badge => {
+            badge.addEventListener('click', () => {
+                // Remove selected from all
+                badges.forEach(b => b.classList.remove('selected'));
+                
+                // Add selected to clicked
+                badge.classList.add('selected');
+                
+                // Update profile icon
+                const selectedBadge = badge.dataset.badge;
+                profileIcon.textContent = selectedBadge;
+                profileBadge.textContent = selectedBadge;
+            });
+        });
+
+        // Smooth transitions
+        document.querySelectorAll('.badge-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            item.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('selected')) {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                }
             });
         });
     </script>

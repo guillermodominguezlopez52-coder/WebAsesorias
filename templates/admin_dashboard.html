@@ -2,165 +2,856 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Administrador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Web Asesorías</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #6e45e2, #88d3f9);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-            color: #333;
+        :root {
+            --primary: #1e293b;
+            --primary-light: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--primary);
+            padding: 32px 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 24px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 0 24px;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--warning);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            width: 24px;
             text-align: center;
         }
-        .header h1 {
-            color: #333;
-            margin-bottom: 5px;
+
+        .sidebar-footer {
+            padding: 0 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 24px;
         }
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #2575fc;
-            color: white;
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            margin: 0 5px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .btn:hover {
-            background: #1a68e8;
+
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.3);
         }
-        .btn-danger {
-            background: #e74c3c;
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 32px;
+            min-height: 100vh;
         }
-        .btn-danger:hover {
-            background: #c0392b;
+
+        .top-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
         }
-        table {
+
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .welcome-text h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.blue {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .stat-icon.green {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .stat-icon.red {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .stat-icon.yellow {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Table Styles */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
         }
-        th, td {
-            padding: 12px;
+
+        .data-table thead {
+            background: var(--bg-main);
+        }
+
+        .data-table th {
+            padding: 16px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
         }
-        th {
-            background: #d4af37;
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-main);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-student {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-teacher {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-admin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
             color: white;
         }
-        tr:nth-child(even) {
-            background: #f9f9f9;
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
         }
-        .section {
-            margin-bottom: 30px;
+
+        .btn-success {
+            background: var(--success);
+            color: white;
         }
-        .logout-link {
-            display: block;
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        /* Sanction Form */
+        .sanction-form {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .sanction-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            width: 140px;
+        }
+
+        .sanction-input:focus {
+            border-color: var(--accent);
+        }
+
+        .no-data {
             text-align: center;
-            margin-top: 20px;
-            color: #e74c3c;
-            text-decoration: none;
-            font-weight: bold;
+            padding: 48px 24px;
+            color: var(--text-secondary);
         }
-        .logout-link:hover {
-            text-decoration: underline;
+
+        .no-data-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-data-text {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .top-bar {
+                padding: 20px;
+            }
+
+            .section-card {
+                padding: 20px;
+            }
+
+            .data-table {
+                font-size: 0.85rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+            }
+
+            .sanction-form {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .sanction-input {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 Panel de Administrador</h1>
-        <p>Bienvenido, administrador. Gestiona usuarios y reportes.</p>
-        <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">Cerrar Sesión</a>
-    </div>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
-    <!-- Usuarios -->
-    <div class="section">
-        <h2>👥 Usuarios Registrados</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Fecha De Registro</th>
-                    <th>Rol</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in usuarios %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.nombre }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        {% if user.rol == 'alumno' %}
-                            <span style="color: #2ecc71; font-weight: bold;">Alumno</span>
-                        {% elif user.rol == 'maestro' %}
-                            <span style="color: #e74c3c; font-weight: bold;">Maestro</span>
-                        {% endif %}
-                    <td>
-                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='alumno') }}" class="btn">Alumno</a>
-                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='maestro') }}" class="btn">Maestro</a>
-                    <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Eliminar</a>
-                     <!-- Formulario de sanción -->
-                     <form method="POST" action="{{ url_for('sancionar_usuario', user_id=user.id) }}" style="display:inline; margin-left: 8px;">
-                     <input type="text" name="motivo" placeholder="Motivo" required 
-                        style="width:120px; padding:3px; font-size:0.8rem;">
-                 <button type="submit" 
-                style="padding:3px 8px; font-size:0.8rem; background:#e74c3c; color:white; border:none; border-radius:4px;">
-            Sancionar
-        </button>
-    </form>
-</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">👑</div>
+                <span>Admin Panel</span>
+            </div>
+            <div style="margin-top: 12px;">
+                <span class="admin-badge">🛡️ ADMINISTRADOR</span>
+            </div>
+        </div>
 
-    <!-- Reportes -->
-    <div class="section">
-        <h2>⚠️ Reportes Pendientes</h2>
-        {% if reportes %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reportado por</th>
-                        <th>Usuario reportado</th>
-                        <th>Razón</th>
-                        <th>Comentarios</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in reportes %}
-                    <tr>
-                        <td>{{ r.reportado_por }}</td>
-                        <td>{{ r.usuario_reportado }}</td>
-                        <td>{{ r.razon }}</td>
-                        <td style="max-width: 200px; word-wrap: break-word;">{{ r.comentarios or 'Sin comentarios' }}</td>
-                        <td>{{ r.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p style="text-align: center; color: #888; padding: 20px;">No hay reportes pendientes.</p>
-        {% endif %}
-    </div>
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Gestión</div>
+                <div class="nav-link active" onclick="showSection('overview')">
+                    <span class="nav-icon">📊</span>
+                    <span>Vista General</span>
+                </div>
+                <div class="nav-link" onclick="showSection('usuarios')">
+                    <span class="nav-icon">👥</span>
+                    <span>Usuarios</span>
+                </div>
+                <div class="nav-link" onclick="showSection('reportes')">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Reportes</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Sistema</div>
+                <div class="nav-link">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configuración</span>
+                </div>
+                <div class="nav-link">
+                    <span class="nav-icon">📈</span>
+                    <span>Estadísticas</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('admin_logout') }}" class="logout-link">
+                <span>🚪</span>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>Panel de Administración</h1>
+                    <p class="welcome-subtitle">Gestiona usuarios, reportes y configuración del sistema</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue">👥</div>
+                </div>
+                <div class="stat-value">{{ usuarios|length }}</div>
+                <div class="stat-label">Total de Usuarios</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green">🎓</div>
+                </div>
+                <div class="stat-value">{{ usuarios|selectattr('rol', 'equalto', 'alumno')|list|length }}</div>
+                <div class="stat-label">Alumnos Registrados</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon yellow">👨‍🏫</div>
+                </div>
+                <div class="stat-value">{{ usuarios|selectattr('rol', 'equalto', 'maestro')|list|length }}</div>
+                <div class="stat-label">Maestros Activos</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon red">⚠️</div>
+                </div>
+                <div class="stat-value">{{ reportes|length if reportes else 0 }}</div>
+                <div class="stat-label">Reportes Pendientes</div>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview" class="content-section active">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">Resumen del Sistema</h2>
+                </div>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+                    Bienvenido al panel de administración. Desde aquí puedes gestionar todos los aspectos del sistema de asesorías, incluyendo usuarios, roles, reportes y configuraciones generales.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="padding: 16px; background: var(--bg-main); border-radius: 8px;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Estado del Sistema</div>
+                        <div style="font-size: 1.1rem; font-weight: 600; color: var(--success);">✓ Operativo</div>
+                    </div>
+                    <div style="padding: 16px; background: var(--bg-main); border-radius: 8px;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Última Actualización</div>
+                        <div style="font-size: 1.1rem; font-weight: 600;">Hoy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuarios Section -->
+        <div id="usuarios" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">Gestión de Usuarios</h2>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Rol Actual</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in usuarios %}
+                        <tr>
+                            <td><strong>#{{ user.id }}</strong></td>
+                            <td>{{ user.nombre }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.rol == 'alumno' %}
+                                    <span class="badge badge-student">🎓 Alumno</span>
+                                {% elif user.rol == 'maestro' %}
+                                    <span class="badge badge-teacher">👨‍🏫 Maestro</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='alumno') }}" 
+                                       class="btn btn-primary" title="Cambiar a Alumno">
+                                        🎓 Alumno
+                                    </a>
+                                    <a href="{{ url_for('toggle_role', user_id=user.id, target_role='maestro') }}" 
+                                       class="btn btn-warning" title="Cambiar a Maestro">
+                                        👨‍🏫 Maestro
+                                    </a>
+                                    <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+                                       class="btn btn-danger" 
+                                       onclick="return confirm('¿Estás seguro de eliminar este usuario?')"
+                                       title="Eliminar Usuario">
+                                        🗑️ Eliminar
+                                    </a>
+                                </div>
+                                <form method="POST" 
+                                      action="{{ url_for('sancionar_usuario', user_id=user.id) }}" 
+                                      class="sanction-form"
+                                      style="margin-top: 8px;">
+                                    <input type="text" 
+                                           name="motivo" 
+                                           class="sanction-input" 
+                                           placeholder="Motivo de sanción" 
+                                           required>
+                                    <button type="submit" class="btn btn-danger">
+                                        ⚠️ Sancionar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reportes Section -->
+        <div id="reportes" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <h2 class="section-title">Reportes Pendientes</h2>
+                </div>
+                {% if reportes %}
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Reportado Por</th>
+                                <th>Usuario Reportado</th>
+                                <th>Razón</th>
+                                <th>Comentarios</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reportes %}
+                            <tr>
+                                <td><strong>{{ r.reportado_por }}</strong></td>
+                                <td>{{ r.usuario_reportado }}</td>
+                                <td><span class="badge badge-admin">{{ r.razon }}</span></td>
+                                <td style="max-width: 300px;">{{ r.comentarios or 'Sin comentarios adicionales' }}</td>
+                                <td>{{ r.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-data">
+                        <div class="no-data-icon">✅</div>
+                        <div class="no-data-text">No hay reportes pendientes</div>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">El sistema está funcionando correctamente sin incidencias reportadas</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        function showSection(sectionId) {
+            // Remover clase active de todos los links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Mostrar la sección seleccionada
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            // Activar el link correspondiente
+            event.target.closest('.nav-link')?.classList.add('active');
+
+            // Cerrar sidebar en móvil
+            if (window.innerWidth <= 968) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        // Cerrar sidebar al hacer click fuera en móvil
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 968) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        // Confirmación para acciones críticas
+        document.querySelectorAll('.btn-danger').forEach(btn => {
+            if (btn.textContent.includes('Eliminar')) {
+                btn.addEventListener('click', function(e) {
+                    if (!confirm('¿Estás seguro de realizar esta acción? Esta operación no se puede deshacer.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

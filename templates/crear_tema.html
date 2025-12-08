@@ -2,86 +2,589 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Crear Tema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nuevo Tema - Web Asesorías</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #6e45e2, #88d3f9);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
-        .card {
+
+        /* Animated background elements */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        body::before {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            bottom: -250px;
+            left: -250px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+
+        .form-container {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 48px 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        h1 {
+
+        /* Custom Scrollbar */
+        .form-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .form-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .form-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .form-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .form-header {
             text-align: center;
-            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            border-radius: 18px;
             margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            font-size: 2rem;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: bold;
+
+        .form-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
-        input, textarea, button {
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="time"],
+        textarea {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: white;
         }
-        button {
-            background: #2575fc;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            padding-top: 14px;
         }
-        button:hover {
-            background: #1a68e8;
+
+        input[type="text"]:focus,
+        input[type="time"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
-        .back-link {
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #cbd5e1;
+        }
+
+        .input-hint {
             display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #2575fc;
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Character Counter */
+        .char-counter {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        /* Time input special styling */
+        input[type="time"] {
+            cursor: pointer;
+        }
+
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: opacity(0.6);
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             text-decoration: none;
         }
-        .back-link:hover {
-            text-decoration: underline;
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-main);
+            border-color: var(--text-secondary);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .info-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .info-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: #d1fae5;
+            border-left: 4px solid var(--success);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .success-message.show {
+            display: flex;
+            animation: slideIn 0.3s;
+        }
+
+        .success-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .form-container {
+                padding: 36px 24px;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            input[type="text"],
+            input[type="time"],
+            textarea {
+                padding-left: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+
+            .form-container {
+                border-radius: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Crear Nuevo Tema</h1>
-        <form method="POST">
-            <label for="nombre">Nombre del Tema *</label>
-            <input type="text" name="nombre" id="nombre" required>
+    <div class="form-container">
+        <!-- Header -->
+        <div class="form-header">
+            <div class="header-icon">📚</div>
+            <h1 class="form-title">Crear Nuevo Tema</h1>
+            <p class="form-subtitle">Configura un nuevo tema de asesoría para tus estudiantes</p>
+        </div>
 
-            <label for="descripcion">Descripción</label>
-            <textarea name="descripcion" id="descripcion" rows="3"></textarea>
+        <!-- Info Box -->
+        <div class="info-box">
+            <div class="info-icon">💡</div>
+            <div class="info-content">
+                <div class="info-title">Información importante</div>
+                <div class="info-text">
+                    Los campos marcados con <span style="color: #ef4444;">*</span> son obligatorios. Asegúrate de proporcionar información clara y precisa.
+                </div>
+            </div>
+        </div>
 
-            <label for="hora">Hora *</label>
-            <input type="time" name="hora" id="hora" required>
+        <!-- Success Message (hidden by default) -->
+        <div class="success-message" id="successMessage">
+            <span class="success-icon">✓</span>
+            <span>Tema creado exitosamente</span>
+        </div>
 
-            <label for="aula">Aula *</label>
-            <input type="text" name="aula" id="aula" placeholder="Ej: Aula 301" required>
+        <!-- Form -->
+        <form method="POST" id="createThemeForm">
+            <div class="form-group">
+                <label class="input-label">
+                    Nombre del Tema
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📖</span>
+                    <input 
+                        type="text" 
+                        name="nombre" 
+                        id="nombre" 
+                        placeholder="Ej: Matemáticas Avanzadas"
+                        required
+                        maxlength="100"
+                        autofocus
+                    >
+                </div>
+                <span class="input-hint">Nombre descriptivo del tema o materia</span>
+            </div>
 
-            <button type="submit">Crear Tema</button>
+            <div class="form-group">
+                <label class="input-label">
+                    Descripción
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon" style="top: 20px;">📝</span>
+                    <textarea 
+                        name="descripcion" 
+                        id="descripcion" 
+                        placeholder="Describe brevemente el contenido del tema, objetivos y metodología..."
+                        maxlength="500"
+                    ></textarea>
+                </div>
+                <div class="char-counter">
+                    <span id="charCount">0</span> / 500 caracteres
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="input-label">
+                    Horario de Asesoría
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🕐</span>
+                    <input 
+                        type="time" 
+                        name="hora" 
+                        id="hora" 
+                        required
+                    >
+                </div>
+                <span class="input-hint">Selecciona la hora de la asesoría</span>
+            </div>
+
+            <div class="form-group">
+                <label class="input-label">
+                    Aula o Ubicación
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📍</span>
+                    <input 
+                        type="text" 
+                        name="aula" 
+                        id="aula" 
+                        placeholder="Ej: Aula 301 - Edificio A"
+                        required
+                        maxlength="50"
+                    >
+                </div>
+                <span class="input-hint">Indica el lugar físico o virtual de la asesoría</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <a href="{{ url_for('maestro') }}" class="btn btn-secondary">
+                    <span>←</span>
+                    <span>Cancelar</span>
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <span>✓</span>
+                    <span>Crear Tema</span>
+                </button>
+            </div>
         </form>
-        <a href="{{ url_for('maestro_temas') }}" class="back-link">← Volver a Temas</a>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('createThemeForm');
+            const descripcionTextarea = document.getElementById('descripcion');
+            const charCount = document.getElementById('charCount');
+            const inputs = document.querySelectorAll('input[type="text"], input[type="time"], textarea');
+
+            // Character counter for description
+            descripcionTextarea.addEventListener('input', function() {
+                const count = this.value.length;
+                charCount.textContent = count;
+                
+                if (count > 450) {
+                    charCount.style.color = '#ef4444';
+                } else if (count > 400) {
+                    charCount.style.color = '#f59e0b';
+                } else {
+                    charCount.style.color = 'var(--text-light)';
+                }
+            });
+
+            // Input focus effects
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.01)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Form validation and submission
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.btn-primary');
+                const nombre = document.getElementById('nombre').value.trim();
+                const aula = document.getElementById('aula').value.trim();
+                const hora = document.getElementById('hora').value;
+
+                // Additional validation
+                if (nombre.length < 3) {
+                    e.preventDefault();
+                    alert('El nombre del tema debe tener al menos 3 caracteres');
+                    return;
+                }
+
+                if (aula.length < 2) {
+                    e.preventDefault();
+                    alert('Por favor, indica una ubicación válida');
+                    return;
+                }
+
+                if (!hora) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona un horario');
+                    return;
+                }
+
+                // Disable button and show loading state
+                button.disabled = true;
+                button.innerHTML = '<span>⏳</span><span>Creando...</span>';
+                
+                // Re-enable after 3 seconds if there's an error
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '<span>✓</span><span>Crear Tema</span>';
+                }, 3000);
+            });
+
+            // Auto-capitalize first letter of nombre
+            document.getElementById('nombre').addEventListener('input', function(e) {
+                if (this.value.length === 1) {
+                    this.value = this.value.charAt(0).toUpperCase();
+                }
+            });
+
+            // Format aula input
+            document.getElementById('aula').addEventListener('input', function(e) {
+                if (this.value.length === 1) {
+                    this.value = this.value.charAt(0).toUpperCase();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

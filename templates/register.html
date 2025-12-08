@@ -1,20 +1,850 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Crear Cuenta</h2>
-<form method="POST">
-    <input type="text" name="nombre" placeholder="Nombre completo" required>
-    <input type="email" name="email" placeholder="Correo electrónico" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    
-    <label><input type="radio" name="rol" value="alumno" required> Alumno</label>
-    <label><input type="radio" name="rol" value="maestro" required> Maestro</label>
-    
-    <div class="terms">
-        <input type="checkbox" name="terminos" required>
-        <span>Acepto los <a href="#" onclick="alert('Términos: 1. Usa la plataforma con responsabilidad. 2. No compartas tus credenciales. 3. Respeta a otros usuarios.'); return false;">Términos y Condiciones</a></span>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - Web Asesorías</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --bg-main: #f8fafc;
+            --border: #e2e8f0;
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background elements */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        body::before {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            right: -200px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            bottom: -250px;
+            left: -250px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+
+        .register-wrapper {
+            display: flex;
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Left Panel - Branding */
+        .brand-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-logo h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .brand-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .brand-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .brand-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Right Panel - Register Form */
+        .register-panel {
+            flex: 1.2;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .register-header {
+            margin-bottom: 32px;
+        }
+
+        .register-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .register-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        input::placeholder {
+            color: #cbd5e1;
+        }
+
+        /* Role Selection */
+        .role-selection {
+            margin-bottom: 24px;
+        }
+
+        .role-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .role-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .role-option {
+            position: relative;
+        }
+
+        .role-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .role-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .role-option input[type="radio"]:checked + .role-card {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .role-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .role-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .role-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* Terms */
+        .terms-group {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-main);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .terms-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .terms-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .terms-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn-register {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-register:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-link {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .login-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .login-link a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-body h3 {
+            color: var(--text-primary);
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .register-wrapper {
+                flex-direction: column;
+            }
+
+            .brand-panel {
+                padding: 40px 30px;
+            }
+
+            .brand-title {
+                font-size: 2rem;
+            }
+
+            .brand-features {
+                display: none;
+            }
+
+            .register-panel {
+                padding: 40px 30px;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0;
+            }
+
+            .register-wrapper {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .brand-panel {
+                padding: 30px 20px;
+            }
+
+            .register-panel {
+                padding: 30px 20px;
+            }
+
+            .register-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-wrapper">
+        <!-- Brand Panel -->
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <div class="logo-icon">🚀</div>
+                    <h2>Asesorías Web</h2>
+                </div>
+                <h1 class="brand-title">Comienza tu viaje educativo</h1>
+                <p class="brand-description">
+                    Únete a nuestra comunidad de aprendizaje y accede a asesorías personalizadas para alcanzar tus metas académicas.
+                </p>
+                <div class="brand-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <span>Registro rápido y sencillo</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <span>Plataforma segura y confiable</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">✓</div>
+                        <span>Asesorías de calidad</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Panel -->
+        <div class="register-panel">
+            <div class="register-header">
+                <h1>Crear Cuenta Nueva</h1>
+                <p class="register-subtitle">Completa el formulario para empezar</p>
+            </div>
+
+            <!-- Register Form -->
+            <form method="POST" id="registerForm">
+                <div class="form-group">
+                    <label class="input-label">Nombre Completo</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input 
+                            type="text" 
+                            name="nombre" 
+                            placeholder="Ej: Juan Pérez García" 
+                            required
+                            autofocus
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="input-label">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            placeholder="tu@email.com" 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="input-label">Contraseña</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            placeholder="Mínimo 6 caracteres" 
+                            required
+                            minlength="6"
+                        >
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="role-selection">
+                    <label class="role-label">Selecciona tu rol</label>
+                    <div class="role-options">
+                        <label class="role-option">
+                            <input type="radio" name="rol" value="alumno" required>
+                            <div class="role-card">
+                                <div class="role-icon">🎓</div>
+                                <div class="role-name">Alumno</div>
+                                <div class="role-description">Recibe asesorías</div>
+                            </div>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="rol" value="maestro" required>
+                            <div class="role-card">
+                                <div class="role-icon">👨‍🏫</div>
+                                <div class="role-name">Maestro</div>
+                                <div class="role-description">Imparte asesorías</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="terms-group">
+                    <label class="terms-checkbox">
+                        <input type="checkbox" name="terminos" required id="termsCheckbox">
+                        <span class="terms-text">
+                            Acepto los <a class="terms-link" onclick="showTerms()">Términos y Condiciones</a> y la Política de Privacidad
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <span>✨</span>
+                    <span>Crear mi cuenta</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>¿YA TIENES CUENTA?</span>
+            </div>
+
+            <div class="login-link">
+                <a href="{{ url_for('login') }}">Iniciar sesión aquí</a>
+            </div>
+        </div>
     </div>
 
-    <button type="submit">Registrarse</button>
-</form>
-<a href="{{ url_for('login') }}">¿Ya tienes cuenta? Inicia sesión</a>
-{% endblock %}
+    <!-- Terms Modal -->
+    <div class="modal" id="termsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Términos y Condiciones</h2>
+                <button class="modal-close" onclick="closeTerms()">×</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Última actualización:</strong> Diciembre 2024</p>
+                
+                <h3>1. Uso de la Plataforma</h3>
+                <ul>
+                    <li>Debes usar la plataforma de manera responsable y ética.</li>
+                    <li>No está permitido compartir contenido inapropiado u ofensivo.</li>
+                    <li>Mantén un comportamiento respetuoso con todos los usuarios.</li>
+                </ul>
+
+                <h3>2. Seguridad de la Cuenta</h3>
+                <ul>
+                    <li>No compartas tus credenciales de acceso con terceros.</li>
+                    <li>Eres responsable de todas las actividades en tu cuenta.</li>
+                    <li>Notifica inmediatamente cualquier uso no autorizado.</li>
+                </ul>
+
+                <h3>3. Privacidad y Datos</h3>
+                <ul>
+                    <li>Tus datos personales serán tratados de forma confidencial.</li>
+                    <li>No compartiremos tu información sin tu consentimiento.</li>
+                    <li>Puedes solicitar la eliminación de tus datos en cualquier momento.</li>
+                </ul>
+
+                <h3>4. Conducta del Usuario</h3>
+                <ul>
+                    <li>Respeta a otros usuarios, maestros y alumnos por igual.</li>
+                    <li>No uses la plataforma para actividades fraudulentas.</li>
+                    <li>El incumplimiento puede resultar en la suspensión de tu cuenta.</li>
+                </ul>
+
+                <h3>5. Responsabilidades</h3>
+                <ul>
+                    <li>Los maestros deben proporcionar asesorías de calidad.</li>
+                    <li>Los alumnos deben participar activamente en las sesiones.</li>
+                    <li>Ambas partes deben cumplir con los horarios acordados.</li>
+                </ul>
+
+                <p style="margin-top: 20px;">
+                    <strong>Al crear una cuenta, aceptas estos términos y condiciones.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show/Hide Terms Modal
+        function showTerms() {
+            document.getElementById('termsModal').classList.add('active');
+        }
+
+        function closeTerms() {
+            document.getElementById('termsModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('termsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTerms();
+            }
+        });
+
+        // Form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registerForm');
+            const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+            
+            // Input focus effects
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.01)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.btn-register');
+                const termsCheckbox = document.getElementById('termsCheckbox');
+                
+                if (!termsCheckbox.checked) {
+                    e.preventDefault();
+                    alert('Debes aceptar los Términos y Condiciones para continuar');
+                    return;
+                }
+
+                button.disabled = true;
+                button.innerHTML = '<span>⏳</span><span>Creando cuenta...</span>';
+                
+                // Re-enable after 3 seconds if there's an error
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '<span>✨</span><span>Crear mi cuenta</span>';
+                }, 3000);
+            });
+
+            // Password validation
+            const passwordInput = document.querySelector('input[type="password"]');
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length > 0 && this.value.length < 6) {
+                    this.setCustomValidity('La contraseña debe tener al menos 6 caracteres');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

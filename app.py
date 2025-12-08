@@ -123,15 +123,70 @@ def alumno():
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
-            # Temas inscritos
+            # ========== Datos para "Mis Temas" y "Calificaciones" ==========
+            cur.execute("""
+                SELECT 
+                    t.nombre AS tema,
+                    u.nombre AS asesor,
+                    u.id AS asesor_id,
+                    COALESCE(c.nota, 'N/A') AS calificacion,
+                    CASE 
+                        WHEN c.nota IS NOT NULL THEN 'Aprobado'
+                        ELSE 'Pendiente'
+                    END AS estado
+                FROM alumno_tema at
+                JOIN temas t ON at.tema_id = t.id
+                JOIN usuarios u ON t.maestro_id = u.id
+                LEFT JOIN calificaciones c ON c.alumno_id = %s AND c.tema_id = t.id
+                WHERE at.alumno_id = %s
+                ORDER BY t.nombre
+            """, (session['user_id'], session['user_id']))
+            mis_asesorias = cur.fetchall()
+
+            cur.execute("""
+                SELECT 
+                    t.nombre AS tema,
+                    u.nombre AS asesor,
+                    COALESCE(c.nota, 'N/A') AS calificacion,
+                    c.fecha
+                FROM calificaciones c
+                JOIN temas t ON c.tema_id = t.id
+                JOIN usuarios u ON t.maestro_id = u.id
+                WHERE c.alumno_id = %s
+                ORDER BY c.fecha DESC
+            """, (session['user_id'],))
+            mis_calificaciones = cur.fetchall()
+
+            # ========== Datos para "Buscar Temas" ==========
+            cur.execute("""
+                SELECT t.id, t.nombre, t.descripcion, t.hora, t.aula, u.nombre AS maestro_nombre
+                FROM temas t
+                JOIN usuarios u ON t.maestro_id = u.id
+                WHERE t.activo = TRUE
+                AND t.id NOT IN (
+                    SELECT tema_id FROM alumno_tema WHERE alumno_id = %s
+                )
+            """, (session['user_id'],))
+            temas_disponibles = cur.fetchall()
+
+            cur.execute("SELECT tema_id FROM alumno_tema WHERE alumno_id = %s", (session['user_id'],))
+            inscrito_ids = [row['tema_id'] for row in cur.fetchall()]
+
+            # ========== Datos para "Notificaciones" ==========
+            cur.execute("""
+                SELECT * FROM notificaciones 
+                WHERE usuario_id = %s
+                ORDER BY created_at DESC
+            """, (session['user_id'],))
+            notificaciones = cur.fetchall()
+
+            # ========== Estadísticas ==========
             cur.execute("SELECT COUNT(*) FROM alumno_tema WHERE alumno_id = %s", (session['user_id'],))
             temas_inscritos = cur.fetchone()['COUNT(*)']
 
-            # Calificaciones registradas
             cur.execute("SELECT COUNT(*) FROM calificaciones WHERE alumno_id = %s", (session['user_id'],))
             calificaciones = cur.fetchone()['COUNT(*)']
 
-            # Temas pendientes (sin calificación)
             cur.execute("""
                 SELECT COUNT(*)
                 FROM alumno_tema at
@@ -149,7 +204,14 @@ def alumno():
     finally:
         conn.close()
 
-    return render_template('alumno.html', nombre=session['nombre'], stats=stats)
+    return render_template('alumno.html', 
+                         nombre=session['nombre'], 
+                         mis_asesorias=mis_asesorias, 
+                         mis_calificaciones=mis_calificaciones,
+                         temas_disponibles=temas_disponibles,
+                         inscrito_ids=inscrito_ids,
+                         notificaciones=notificaciones,
+                         stats=stats)
 
 # Panel del maestro
 @app.route('/maestro')
@@ -163,141 +225,78 @@ def maestro():
         with conn.cursor() as cur:
             # Estadísticas
             cur.execute("SELECT COUNT(DISTINCT alumno_id) FROM alumno_tema at JOIN temas t ON at.tema_id = t.id WHERE t.maestro_id = %s", (session['user_id'],))
-            alumnos = cur.fetchone()['COUNT(DISTINCT alumno_id)']
+            alumnos_count = cur.fetchone()['COUNT(DISTINCT alumno_id)']
 
             cur.execute("SELECT COUNT(*) FROM temas WHERE maestro_id = %s", (session['user_id'],))
-            temas = cur.fetchone()['COUNT(*)']
+            temas_count = cur.fetchone()['COUNT(*)']
 
             cur.execute("SELECT COUNT(*) FROM notificaciones WHERE usuario_id = %s AND leida = FALSE", (session['user_id'],))
             notificaciones_pendientes = cur.fetchone()['COUNT(*)']
 
-            stats = {
-                'alumnos': alumnos,
-                'temas': temas,
-                'notificaciones_pendientes': notificaciones_pendientes
-            }
-    finally:
-        conn.close()
-
-    return render_template('maestro.html', nombre=session['nombre'], stats=stats)
-
-# Lista de alumnos del maestro
-@app.route('/maestro/alumnos')
-def maestro_alumnos():
-    if 'user_id' not in session or session['rol'] != 'maestro':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
+            # ✅ Alumnos inscritos en los temas del maestro (CORREGIDO)
             cur.execute("""
-                SELECT DISTINCT u.id, u.nombre, u.email
-                FROM alumno_tema at
-                JOIN usuarios u ON at.alumno_id = u.id
-                JOIN temas t ON at.tema_id = t.id
-                WHERE t.maestro_id = %s
-                ORDER BY u.nombre
+                SELECT DISTINCT
+                u.id,
+                u.nombre,
+                u.email
+                FROM usuarios u 
+                INNER JOIN alumno_tema at ON u.id = at.alumno_id 
+                INNER JOIN temas t ON at.tema_id = t.id 
+                WHERE t.maestro_id = %s 
+                AND u.rol = 'alumno'
             """, (session['user_id'],))
             alumnos = cur.fetchall()
-    finally:
-        conn.close()
 
-    return render_template('maestro_alumnos.html', nombre=session['nombre'], alumnos=alumnos)
+            # ✅ Temas creados por el maestro
+            cur.execute("""
+                SELECT * FROM temas 
+                WHERE maestro_id = %s 
+                ORDER BY created_at DESC
+            """, (session['user_id'],))
+            temas = cur.fetchall()
 
-@app.route('/alumno/notificaciones')
-def alumno_notificaciones():
-    if 'user_id' not in session or session['rol'] != 'alumno':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
+            # ✅ Calificaciones
+            cur.execute("""
+                SELECT 
+                    u.nombre AS alumno_nombre,
+                    t.nombre AS tema_nombre,
+                    COALESCE(c.nota, 'N/A') AS nota,
+                    c.fecha,
+                    u.id AS alumno_id,
+                    t.id AS tema_id
+                FROM usuarios u
+                INNER JOIN alumno_tema at ON u.id = at.alumno_id
+                INNER JOIN temas t ON at.tema_id
+                LEFT JOIN calificaciones c ON c.alumno_id = u.id AND c.tema_id = t.id
+                WHERE t.maestro_id = %s
+                AND u.rol = 'alumno'
+                ORDER BY u.nombre, t.nombre
+            """, (session['user_id'],))
+            calificaciones = cur.fetchall()
 
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
+            # ✅ Notificaciones
             cur.execute("""
                 SELECT * FROM notificaciones 
                 WHERE usuario_id = %s
                 ORDER BY created_at DESC
             """, (session['user_id'],))
             notificaciones = cur.fetchall()
+
+            stats = {
+                'alumnos': alumnos_count,
+                'temas': temas_count,
+                'notificaciones_pendientes': notificaciones_pendientes
+            }
     finally:
         conn.close()
 
-    return render_template('alumno_notificaciones.html', nombre=session['nombre'], notificaciones=notificaciones)
-
-# Notificaciones del maestro
-@app.route('/maestro/notificaciones')
-def maestro_notificaciones():
-    if 'user_id' not in session:
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM notificaciones 
-                WHERE usuario_id = %s  -- ← Cambiado aquí
-                ORDER BY created_at DESC
-            """, (session['user_id'],))
-            notificaciones = cur.fetchall()
-    finally:
-        conn.close()
-
-    return render_template('maestro_notificaciones.html', nombre=session['nombre'], notificaciones=notificaciones)
-
-# Temas del maestro
-@app.route('/maestro/temas')
-def maestro_temas():
-    if 'user_id' not in session or session['rol'] != 'maestro':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT * FROM temas 
-                WHERE maestro_id = %s 
-                ORDER BY activo DESC, created_at DESC
-            """, (session['user_id'],))
-            temas = cur.fetchall()
-    finally:
-        conn.close()
-
-    return render_template('maestro_temas.html', nombre=session['nombre'], temas=temas)
-
-# Calificaciones del maestro
-@app.route('/maestro/calificaciones')
-def maestro_calificaciones():
-    if 'user_id' not in session or session['rol'] != 'maestro':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT 
-                    u.id AS alumno_id,
-                    u.nombre AS alumno_nombre,
-                    t.id AS tema_id,
-                    t.nombre AS tema_nombre,
-                    c.nota,
-                    c.fecha
-                FROM calificaciones c
-                JOIN usuarios u ON c.alumno_id = u.id
-                JOIN temas t ON c.tema_id = t.id
-                WHERE t.maestro_id = %s
-                ORDER BY u.nombre, t.nombre
-            """, (session['user_id'],))
-            calificaciones = cur.fetchall()
-    finally:
-        conn.close()
-
-    return render_template('maestro_calificaciones.html', 
+    return render_template('maestro.html', 
                          nombre=session['nombre'], 
-                         calificaciones=calificaciones)
+                         stats=stats,
+                         alumnos=alumnos,
+                         temas=temas,
+                         calificaciones=calificaciones,
+                         notificaciones=notificaciones)
 
 # Editar calificación
 @app.route('/maestro/calificacion/<int:alumno_id>/<int:tema_id>', methods=['GET', 'POST'])
@@ -336,48 +335,6 @@ def editar_calificacion(alumno_id, tema_id):
                            alumno_id=alumno_id, 
                            tema_id=tema_id)
 
-# NUEVA RUTA: Calificaciones por tema
-@app.route('/maestro/tema/<int:tema_id>/calificaciones')
-def tema_calificaciones(tema_id):
-    if 'user_id' not in session or session['rol'] != 'maestro':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM temas WHERE id = %s", (tema_id,))
-            tema = cur.fetchone()
-            if not tema:
-                flash('Tema no encontrado.', 'error')
-                return redirect(url_for('maestro_temas'))
-
-            if tema['maestro_id'] != session['user_id']:
-                flash('No tienes permiso para ver este tema.', 'error')
-                return redirect(url_for('maestro_temas'))
-
-            cur.execute("""
-                SELECT 
-                    u.id AS alumno_id,
-                    u.nombre AS alumno_nombre,
-                    u.email AS alumno_email,
-                    c.nota AS nota_actual,
-                    c.fecha AS fecha_nota
-                FROM alumno_tema at
-                JOIN usuarios u ON at.alumno_id = u.id
-                LEFT JOIN calificaciones c ON c.alumno_id = u.id AND c.tema_id = %s
-                WHERE at.tema_id = %s
-                ORDER BY u.nombre
-            """, (tema_id, tema_id))
-            alumnos = cur.fetchall()
-
-    finally:
-        conn.close()
-
-    return render_template('tema_calificaciones.html', 
-                         nombre=session['nombre'], 
-                         tema=tema, 
-                         alumnos=alumnos)
 
 # Crear tema
 @app.route('/maestro/temas/crear', methods=['GET', 'POST'])
@@ -419,46 +376,9 @@ def crear_tema():
             conn.close()
 
         flash('Tema creado exitosamente.', 'success')
-        return redirect(url_for('maestro_temas'))
+        return redirect(url_for('maestro'))
 
     return render_template('crear_tema.html', nombre=session['nombre'])
-
-# Temas disponibles para el alumno
-@app.route('/alumno/temas')
-def alumno_temas():
-    if 'user_id' not in session or session['rol'] != 'alumno':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT t.*, u.nombre AS maestro_nombre
-                FROM temas t
-                JOIN usuarios u ON t.maestro_id = u.id
-                WHERE t.activo = TRUE
-                AND t.id NOT IN (
-                    SELECT tema_id FROM alumno_tema WHERE alumno_id = %s
-                )
-            """, (session['user_id'],))
-            temas_disponibles = cur.fetchall()
-
-            cur.execute("""
-                SELECT t.*, u.nombre AS maestro_nombre
-                FROM alumno_tema at
-                JOIN temas t ON at.tema_id = t.id
-                JOIN usuarios u ON t.maestro_id = u.id
-                WHERE at.alumno_id = %s
-            """, (session['user_id'],))
-            temas_aceptados = cur.fetchall()
-    finally:
-        conn.close()
-
-    return render_template('alumno_temas.html', 
-                         nombre=session['nombre'],
-                         temas_disponibles=temas_disponibles,
-                         temas_aceptados=temas_aceptados)
 
 # Aceptar un tema
 @app.route('/alumno/tema/<int:tema_id>/aceptar', methods=['POST'])
@@ -474,7 +394,7 @@ def aceptar_tema(tema_id):
             tema = cur.fetchone()
             if not tema:
                 flash('Tema no válido.', 'error')
-                return redirect(url_for('alumno_temas'))
+                return redirect(url_for('alumno'))
 
             cur.execute("""
                 INSERT INTO alumno_tema (alumno_id, tema_id)
@@ -482,7 +402,7 @@ def aceptar_tema(tema_id):
             """, (session['user_id'], tema_id))
 
             cur.execute("""
-                INSERT INTO notificaciones (maestro_id, titulo, mensaje)
+                INSERT INTO notificaciones (usuario_id, titulo, mensaje)
                 VALUES (%s, %s, %s)
             """, (
                 tema['maestro_id'],
@@ -494,7 +414,7 @@ def aceptar_tema(tema_id):
         conn.close()
 
     flash('Tema aceptado exitosamente.', 'success')
-    return redirect(url_for('alumno_temas'))
+    return redirect(url_for('alumno'))
 
 # Reportar usuario
 @app.route('/reportar/<int:user_id_reportado>')
@@ -505,7 +425,7 @@ def reportar(user_id_reportado):
 
     if session['user_id'] == user_id_reportado:
         flash('No puedes reportarte a ti mismo.', 'warning')
-        return redirect(url_for('alumno_temas'))
+        return redirect(url_for('alumno'))
 
     conn = get_db_connection()
     try:
@@ -514,7 +434,7 @@ def reportar(user_id_reportado):
             usuario = cur.fetchone()
             if not usuario:
                 flash('El usuario que intentas reportar no existe.', 'error')
-                return redirect(url_for('alumno_temas'))
+                return redirect(url_for('alumno'))
     finally:
         conn.close()
 
@@ -542,7 +462,7 @@ def enviar_reporte():
         conn.close()
 
     flash('Tu reporte ha sido enviado al administrador. Gracias.', 'success')
-    return redirect(url_for('alumno_temas'))
+    return redirect(url_for('alumno'))
 
 # Cerrar sesión
 @app.route('/logout')
